@@ -1,0 +1,1 @@
+helm install -n redis redis --set password=ayedimedamine --set cluster.enabled=true  --set cluster.slaveCount=5 --set master.service.type=ClusterIP --set global.storageClass=nfs-client  bitnami/redis 

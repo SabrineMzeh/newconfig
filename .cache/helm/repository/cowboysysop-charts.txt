@@ -1,0 +1,6 @@
+lighthouse-ci
+mongo-express
+vertical-pod-autoscaler
+whoami
+kubebox
+kubeview

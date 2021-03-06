@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+#kind: Deployment
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+   matchLabels:
+    app: postgres
+  serviceName: "postgres"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+---
+    kind: PersistentVolume
+    apiVersion: v1
+    metadata:
+      name: postgres-pv-volume
+      labels:
+        type: local
+        app: postgres
+    spec:
+      storageClassName: manual
+      capacity:
+        storage: 15Gi
+      accessModes:
+        - ReadWriteOnce
+      nfs:
+        server: 161.97.173.185
+        path: "/srv/nfs/kubedata/pv0"
+---
+    kind: PersistentVolumeClaim
+    #kind: volumeClaimTemplates
+    apiVersion: v1
+    metadata:
+        name: postgres-pv-claim
+        labels:
+          app: postgres
+    spec:
+        storageClassName: manual
+        accessModes:
+          - ReadWriteOnce
+        resources:
+         requests:
+          storage: 10Gi
+    
+---
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: postgres-config
+      labels:
+        app: postgres
+    data:
+      POSTGRES_DB: postgresdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: amine123!
+---
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: postgres
+      labels:
+        app: postgres
+    spec:
+       ports:
+        - name: postgres
+          port: 5432
+          nodePort: 30432
+       type: NodePort
+       selector:
+        app: postgres

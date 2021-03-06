@@ -1,0 +1,1 @@
+helm install -n postgres pgadmin --set pgadmin.username=ayedimedamine7@gmail.com --set pgadmin.password=ayedimedamine --set service.type=NodePort  cetic/pgadmin
